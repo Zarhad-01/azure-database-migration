@@ -8,6 +8,7 @@ TODO: Project description
 
 
 ## Production Environment Setup
+In this section, we outline the initial setup of our production environment. This involves acquiring a new virtual machine, detailing its specifications, and installing essential software including Microsoft SQL Server and SQL Server Management Studio (SMSS). Additionally, we discuss the process of restoring the AdventureWorks2022 database, setting the stage for further migration activities.
 
 **VM Acquisition**: Obtained a Virtual Machine named `production-vm`.
 
@@ -26,6 +27,7 @@ TODO: Project description
 *Figure 2.1: Object explorer displaying the AdventureWorks2022 database*
 
 ## Migrate to Azure SQL Database
+Here, we delve into the core process of migrating our database to Azure SQL Database. We start by creating a new database in Azure and configuring the necessary networking settings. This is followed by establishing our initial connection using Visual Studio Code and proceeding with the migration. Key steps include installing Azure Data Studio, connecting to both local and Azure databases, and successfully migrating the schema and data to Azure.
 
 **Azure Database Creation**: 
   - Created database `aw-database` on `aw-production-server.database.windows.net`.
@@ -62,6 +64,7 @@ TODO: Project description
 The database has been migrated to Azure!
 
 ## Data Backup and Restore
+This section focuses on the crucial tasks of data backup and restoration. Initially, we create a full backup of our production database to ensure data safety. Then, we set up an Azure storage account for backup file storage and upload the backup file to it. The section also covers the creation of a development VM for testing, the restoration of the AdventureWorks database on this VM, and the configuration of automated backups using SQL Server Agent and Maintenance Plans in SMSS.
 
 **Backup Creation**: Generated full backup of `production-vm` database.
 
