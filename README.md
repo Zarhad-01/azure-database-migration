@@ -9,7 +9,7 @@ TODO: Project description
 
 ## Production Environment Setup
 
-**VM Acquisition**: Obtained a Virtual Machine named `adm-prod-vm`.
+**VM Acquisition**: Obtained a Virtual Machine named `production-vm`.
 
 **Specs**: 
 - **OS**: Windows 11 Pro 2h22
@@ -23,17 +23,19 @@ TODO: Project description
   - Restored AdventureWorks2022 database from a backup file.
 
 ![Object explorer displaying the AdventureWorks2022 database](assets/2.1-OE-after-backup.png)
+*Figure 2.1: Object explorer displaying the AdventureWorks2022 database*
 
 ## Migrate to Azure SQL Database
 
 **Azure Database Creation**: 
-  - Created database `AdventureWorks2022` on `aw2022.database.windows.net`.
+  - Created database `aw-database` on `aw-production-server.database.windows.net`.
 **Networking Setup**: 
-  - Configured firewall rule in Azure (aw2022 > Networking) to allow local machine connection.
+  - Configured firewall rule in Azure (aw-production-server > Networking) to allow local machine connection.
 **Initial Connection**:
   - Connected to the Azure database using Visual Studio Code.
 
 ![Visual Studio Code displaying connection to Azure SQL Database](assets/3.1-VSC-SQLconnection.png)
+*Figure 3.1: Visual Studio Code displaying connection to Azure SQL Database*
 
 **Tool Installation and Connection**:
   - Downloaded and installed Azure Data Studio.
@@ -43,12 +45,69 @@ TODO: Project description
   - Migrated schema from the local SQL database to Azure using SQL Server Schema Compare in Azure Data Studio.
 
 ![Azure SQL Database schema migration](assets/3.2-Azure-schema-migration.png)
+*Figure 3.2: Showing successful schema migration*
 
 **Data Migration**:
   - Set up a Database Migration service in Azure and registered an Integration Runtime.
   - Migrated data to Azure database using Azure SQL Migration in Azure Data Studio. Migration confirmed successful.
 
+
 ![Azure SQL Database data migration](assets/3.3-Azure-data-migration.png)
+*Figure 3.3: Showing successful data migration*
+
+
 ![Azure SQL Database data migration query result](assets/3.4-Azure-data-migration-query.png)
+*Figure 3.4: Query made on Azure SQL database confirming migration*
 
 The database has been migrated to Azure!
+
+## Data Backup and Restore
+
+**Backup Creation**: Generated full backup of `production-vm` database.
+
+*Figure 4.1: On-premise database backup*  
+![Successful backup of on-premise database](assets/4.1-successful-backup.png)
+
+**Azure Storage Setup**: Configured `awproductionstorage` for backup storage.
+
+**Backup Upload**: Uploaded backup file to `onpremisebackup` container.
+
+*Figure 4.2: `onpremisebackup` storage container contents*  
+![Blob storage of storage container](assets/4.2-onpremicebackup.png)
+
+**Development VM Setup**: Created `development-vm` for testing.
+
+**Specs**: 
+- **OS**: Windows 11 Pro 2h22
+- **Size**: Standard_B2ms
+
+**Software Installation**:
+  - Installed Microsoft SQL Server.
+  - Installed SQL Server Management Studio (SMSS).
+
+**Software Installation**: Installed SQL Server and SMSS.
+
+**Database Restoration**: Restored AdventureWorks database on `development-vm`.
+
+*Figure 4.3: Restored database on development VM*  
+![Backup of database on development vm](assets/4.3-dev-backup.png)
+
+**Automated Backup Configuration**:
+  1. Activated SQL Server Agent.
+  2. Created SQL Server Credentials for Azure storage.
+  3. Verified credentials in SMSS.
+  
+*Figure 4.4: Azure Storage credentials in SMSS*  
+![Showing Azure Storage credentials](assets/4.4-creds.png)
+
+  4. Configured `Scheduled Backup` via Maintenance Plan Wizard.
+  5. Set backup schedule: Weekly on Saturdays at 12:00 AM.
+  6. Directed backups to Azure storage container.
+
+*Figure 4.5: Backup destination configuration*  
+![Showing database backup destination](assets/4.5-backup-destination.png)
+
+  7. Validated backup by manual execution and Azure storage check.
+
+*Figure 4.6: Backup validation*  
+![Showing both storage container with backup (left) and the successful execution of maintenance plan (right)](assets/4.6-scheduled-backup-working.png)
