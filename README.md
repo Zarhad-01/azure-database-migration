@@ -1,10 +1,18 @@
-# Azure Database Migration project
-![Azure](https://img.shields.io/badge/azure-%230072C6.svg?style=for-the-badge&logo=microsoftazure&logoColor=white)![MicrosoftSQLServer](https://img.shields.io/badge/Microsoft%20SQL%20Server-CC2927?style=for-the-badge&logo=microsoft%20sql%20server&logoColor=white)![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)![Windows 11](https://img.shields.io/badge/Windows%2011-%230079d5.svg?style=for-the-badge&logo=Windows%2011&logoColor=white)
+# Azure Database Migration Project
+![Azure](https://img.shields.io/badge/azure-%230072C6.svg?style=for-the-badge&logo=microsoftazure&logoColor=white) ![MicrosoftSQLServer](https://img.shields.io/badge/Microsoft%20SQL%20Server-CC2927?style=for-the-badge&logo=microsoft%20sql%20server&logoColor=white) ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white) ![Windows 11](https://img.shields.io/badge/Windows%2011-%230079d5.svg?style=for-the-badge&logo=Windows%2011&logoColor=white)
 
-TODO: Project description
+## Project Description
+This project encompasses the migration of an on-premises SQL Server database to Azure SQL Database. It involves setting up a production environment, migrating schema and data to Azure, implementing data backup and restore strategies, conducting disaster recovery simulations, configuring geo-replication and failover, and integrating Microsoft Entra Directory. The project aims to leverage Azure's cloud capabilities for enhanced data management, security, and scalability.
 
-
-## Table of contents
+## Table of Contents
+- [Project Description](#project-description)
+- [Production Environment Setup](#production-environment-setup)
+- [Migrate to Azure SQL Database](#migrate-to-azure-sql-database)
+- [Data Backup and Restore](#data-backup-and-restore)
+- [Disaster Recovery Simulation](#disaster-recovery-simulation)
+- [Geo-replication and Failover](#geo-replication-and-failover)
+- [Microsoft Entra Directory Integration](#microsoft-entra-directory-integration)
+- [Project Accomplishments](#project-accomplishments)
 
 
 ## Production Environment Setup
@@ -12,7 +20,8 @@ In this section, we outline the initial setup of our production environment. Thi
 
 <details>
   <summary>Open Logbook</summary>
-  <br/><br/>
+
+#### Virtual Machine (VM) Setup
 
 **VM Acquisition**: Obtained a Virtual Machine named `production-vm`.
 
@@ -36,7 +45,8 @@ In this section, we outline the initial setup of our production environment. Thi
 Here, we delve into the core process of migrating our database to Azure SQL Database. We start by creating a new database in Azure and configuring the necessary networking settings. This is followed by establishing our initial connection using Visual Studio Code and proceeding with the migration. Key steps include installing Azure Data Studio, connecting to both local and Azure databases, and successfully migrating the schema and data to Azure.
 <details>
   <summary>Open Logbook</summary>
-  <br/><br/>
+
+### Azure SQL Database Server and Database setup
 
 **Azure Database Creation**: 
   - Created database `aw-database` on `aw-production-server.database.windows.net`.
@@ -52,6 +62,8 @@ Here, we delve into the core process of migrating our database to Azure SQL Data
   - Downloaded and installed Azure Data Studio.
   - Established connections to both local and Azure databases.
   
+### Migration to SQL Database
+
 **Schema Migration**:
   - Migrated schema from the local SQL database to Azure using SQL Server Schema Compare in Azure Data Studio.
 
@@ -78,7 +90,8 @@ This section focuses on the crucial tasks of data backup and restoration. Initia
 
 <details>
   <summary>Open Logbook</summary>
-  <br/><br/>
+
+### Backup Creation
 
 **Backup Creation**: Generated full backup of `production-vm` database.
 
@@ -91,6 +104,8 @@ This section focuses on the crucial tasks of data backup and restoration. Initia
 
 *Figure 4.2: `onpremisebackup` storage container contents*  
 ![Blob storage of storage container](assets/4.2-onpremicebackup.png)
+
+### Development VM Creation and Setup
 
 **Development VM Setup**: Created `development-vm` for testing.
 
@@ -108,6 +123,8 @@ This section focuses on the crucial tasks of data backup and restoration. Initia
 
 *Figure 4.3: Restored database on development VM*  
 ![Backup of database on development vm](assets/4.3-dev-backup.png)
+
+### SSMS Automated Backup
 
 **Automated Backup Configuration**:
   1. Activated SQL Server Agent.
@@ -204,3 +221,62 @@ To test the setup, I initiated a Forced Failover, causing the primary and second
 Finally, I conducted the forced failover once again to revert the servers back to their original configuration.
 
 </details>
+
+## Microsoft Entra Directory Integration
+
+In this section, we will integrate Microsoft Entra Directory with our Azure SQL Database setup. This process includes configuring Microsoft Entra ID for Azure SQL Database, setting up administrative and read-only users, and testing their permissions. The goal is to demonstrate how Microsoft Entra Directory can be used to manage user access and permissions in a secure and efficient manner.
+
+<details>
+  <summary>Open Logbook</summary>
+
+### Configure Microsoft Entra ID for Azure SQL Database
+
+#### Setting up Admin user
+
+I began by navigating to the `aw-production-server` in the Azure Portal. Under the settings, I accessed `Microsoft Entra ID` to assign an Entra user as the admin for the SQL Server.
+
+*Figure 7.1: Microsoft Entra Admin setup*  
+![Entra ID Admin](assets/7.1-entra-admin.png)
+
+After setting up the admin, I tested the login to the Azure database using the Microsoft Entra ID, which was successful.
+
+#### Setting up DB Reader User
+
+Next, I added a new user named `aw-DB-Datareader` in the Microsoft Entra ID Service through the Azure Portal.
+
+*Figure 7.2: AW-DB-Reader user in Azure Portal*  
+![Showing the AW-DB-Reader user](assets/7.2-db-reader.png)
+
+I then used Azure Data Studio to execute the following SQL commands to create the user and assign them to the db_datareader role:
+
+```
+CREATE USER [aw-DB-Datareader@aicoreusers.onmicrosoft.com] FROM EXTERNAL PROVIDER;
+ALTER ROLE db_datareader ADD MEMBER [aw-DB-Datareader@aicoreusers.onmicrosoft.com];
+```
+
+#### Testing the DB Reader User
+
+To test the newly created user, I executed a `SELECT` query to confirm that the user can read data:
+
+```
+SELECT * FROM Person.Address;
+```
+
+*Figure 7.3: Database serving read-only user with data*  
+![Shows the database serving read-only user with data](assets/7.3-read-db.png)
+
+Finally, I attempted a `DELETE` operation to ensure the user is restricted to read-only access:
+
+```
+DELETE TOP (1)
+FROM Person.Address;
+```
+
+*Figure 7.4: Database restricting read-only user from altering data*  
+![Shows the database not allowing read-only user to alter database](assets/7.4-read-only.png)
+
+</details>
+
+## Project Accomplishments
+
+We have successfully completed a comprehensive migration of our database to Azure SQL, ensuring enhanced data security, availability, and scalability. Key achievements include setting up a robust production environment, seamless migration of data and schema to Azure, establishing reliable backup and restoration processes, simulating and overcoming disaster recovery scenarios, configuring geo-replication for data redundancy, and integrating Microsoft Entra Directory for improved access control. This project marks a significant milestone in leveraging cloud technology for advanced database management.
