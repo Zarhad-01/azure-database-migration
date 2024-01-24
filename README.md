@@ -137,7 +137,6 @@ In this section, we will conduct a disaster recovery simulation to test our prep
 
 <details>
   <summary>Open Logbook</summary>
-  <br/><br/>
 
 ### Simulating data loss and corruption
 
@@ -170,5 +169,38 @@ To then check these I ran a `SELECT * FROM table` query.
 
 *Figure 5.4: Purchasing.vendor table after restoration*
 ![Purchasing.vendor table after restoration](assets/5.4-purchasingvendor.png)
+
+</details>
+
+## Geo-replication and Failover
+
+In this section, we focus on enhancing the resilience and data protection of our production database through geo-replication. By configuring a synchronized copy of the Azure SQL database in a secondary region, we ensure continuous availability and disaster recovery capabilities. The process involves setting up a geo-replica in a different location and testing failover mechanisms to ensure seamless transition between primary and secondary servers in case of an outage or disaster.
+
+<details>
+  <summary>Open Logbook</summary>
+
+### Configuring Geo-replication
+
+I started by navigating to the `aw-database` in the Azure portal and selecting `Replicas` under Data Management. Here, I created a replica within the `aw-production-backup` SQL Database Server located in the East US region.
+
+*Figure 6.1: New SQL Database Server in East US location*  
+![New SQL Database Server within East US location](assets/6.1-new-database-server.png)
+
+I then completed the form to establish the geo-replica of the original `aw-database`.
+
+*Figure 6.2: New SQL Database in East US location*  
+![New SQL Database within East US location created](assets/6.2-geo-replica.png)
+
+Next, I set up the failover configuration between the primary server `aw-production-server (US South)` and the secondary server `aw-production-backup (East US)`.
+
+*Figure 6.3: Failover group configuration*  
+![Failover group](assets/6.3-failover.png)
+
+To test the setup, I initiated a Forced Failover, causing the primary and secondary servers to switch roles.
+
+*Figure 6.4: Successful forced failover*  
+![Failover group after forced failover](assets/6.4-forced-failover.png)
+
+Finally, I conducted the forced failover once again to revert the servers back to their original configuration.
 
 </details>
