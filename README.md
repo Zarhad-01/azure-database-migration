@@ -27,8 +27,8 @@ In this section, we outline the initial setup of our production environment. Thi
 **Database Restoration**:
   - Restored AdventureWorks2022 database from a backup file.
 
-![Object explorer displaying the AdventureWorks2022 database](assets/2.1-OE-after-backup.png)
 *Figure 2.1: Object explorer displaying the AdventureWorks2022 database*
+![Object explorer displaying the AdventureWorks2022 database](assets/2.1-OE-after-backup.png)
 
 </details>
 
@@ -45,8 +45,8 @@ Here, we delve into the core process of migrating our database to Azure SQL Data
 **Initial Connection**:
   - Connected to the Azure database using Visual Studio Code.
 
-![Visual Studio Code displaying connection to Azure SQL Database](assets/3.1-VSC-SQLconnection.png)
 *Figure 3.1: Visual Studio Code displaying connection to Azure SQL Database*
+![Visual Studio Code displaying connection to Azure SQL Database](assets/3.1-VSC-SQLconnection.png)
 
 **Tool Installation and Connection**:
   - Downloaded and installed Azure Data Studio.
@@ -55,20 +55,20 @@ Here, we delve into the core process of migrating our database to Azure SQL Data
 **Schema Migration**:
   - Migrated schema from the local SQL database to Azure using SQL Server Schema Compare in Azure Data Studio.
 
-![Azure SQL Database schema migration](assets/3.2-Azure-schema-migration.png)
 *Figure 3.2: Showing successful schema migration*
+![Azure SQL Database schema migration](assets/3.2-Azure-schema-migration.png)
 
 **Data Migration**:
   - Set up a Database Migration service in Azure and registered an Integration Runtime.
   - Migrated data to Azure database using Azure SQL Migration in Azure Data Studio. Migration confirmed successful.
 
 
-![Azure SQL Database data migration](assets/3.3-Azure-data-migration.png)
 *Figure 3.3: Showing successful data migration*
+![Azure SQL Database data migration](assets/3.3-Azure-data-migration.png)
 
 
-![Azure SQL Database data migration query result](assets/3.4-Azure-data-migration-query.png)
 *Figure 3.4: Query made on Azure SQL database confirming migration*
+![Azure SQL Database data migration query result](assets/3.4-Azure-data-migration-query.png)
 
 The database has been migrated to Azure!
 </details>
@@ -128,5 +128,47 @@ This section focuses on the crucial tasks of data backup and restoration. Initia
 
 *Figure 4.6: Backup validation*  
 ![Showing both storage container with backup (left) and the successful execution of maintenance plan (right)](assets/4.6-scheduled-backup-working.png)
+
+</details>
+
+## Disaster Recovery Simulation
+
+In this section, we will conduct a disaster recovery simulation to test our preparedness for data loss or corruption in the Azure SQL database. The process involves intentionally creating scenarios that mimic real-world data disasters, such as deleting critical data and inducing data corruption. This simulation will not only test our ability to recover from such incidents but also evaluate the effectiveness of our backup and restore strategies under pressure.
+
+<details>
+  <summary>Open Logbook</summary>
+  <br/><br/>
+
+### Simulating data loss and corruption
+
+To simulate data loss, I plan to delete all entries in the `Production.ProductInventory` table and the `Purchasing.Vendor` table. To mimic data corruption, I will modify the `Purchasing.Vendor` table by setting all `AccountNumbers` to NULL. This will be done by executing the following queries:
+
+
+```
+DELETE FROM Production.ProductInventory;;
+```
+
+```
+UPDATE Purchasing.Vendor
+SET Name = 'ABCDEF';
+```
+*Figure 5.1: Purchasing.vendor table before (left) and after (right) data corruption*
+![Purchasing.vendor table before (left) and after (right) data corruption](assets/5.1-purchasingvendor.png)
+
+*Figure 5.2: Production.ProductInventory table before (left) and after (right) data loss*
+![Production.ProductInventory table before (left) and after (right) data loss](assets/5.2-productInventory.png)
+
+### Restoring Database
+To restore the database I went onto the Azure portal, and into the `aw-database` and select Restore.
+
+From here I select the restore point to midnight the same day, before the deletion and corruption occurred and set the databases name to `aw-database-restored`.
+
+To then check these I ran a `SELECT * FROM table` query.
+
+*Figure 5.3: Production.ProductInventory table after restoration*
+![Production.ProductInventory table after restoration](assets/5.3-productInventory.png)
+
+*Figure 5.4: Purchasing.vendor table after restoration*
+![Purchasing.vendor table after restoration](assets/5.4-purchasingvendor.png)
 
 </details>
